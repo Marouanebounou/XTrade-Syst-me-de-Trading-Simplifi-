@@ -6,9 +6,8 @@ public class Trader extends Person{
     private BigDecimal solde;
     private Portfolio portfolio;
 
-    public Trader(String name, int age, Portfolio portfolio, BigDecimal solde) {
+    public Trader(String name, int age, BigDecimal solde) {
         super(name, age);
-        this.portfolio = portfolio;
         this.solde = solde;
     }
 
@@ -21,10 +20,19 @@ public class Trader extends Person{
     }
 
     public Portfolio getPortfolio() {
-        return portfolio;
+        if (portfolio == null){
+            System.out.println("No portfolio found.");
+            return null;
+        }else {
+            return portfolio;
+        }
     }
 
     public void setPortfolio(Portfolio portfolio) {
         this.portfolio = portfolio;
+    }
+
+    public void showTrader(){
+        System.out.println("Name : " + super.getName() + " - Age : " + this.getAge() + " - Solde : " + this.solde + "DH.");
     }
 }
