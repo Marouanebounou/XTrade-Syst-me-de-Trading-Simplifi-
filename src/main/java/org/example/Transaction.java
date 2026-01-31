@@ -1,5 +1,6 @@
 package org.example;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.math.BigDecimal;
 
@@ -8,19 +9,19 @@ public class Transaction {
     private static int idCounter = 1;
     private Trader trader;
     private Asset asset;
-    private String type;
+    private String transactionType;
     private int quantity;
     private BigDecimal price;
     private Date date;
 
-    public Transaction(Trader trader, Asset asset, String type, int quantity, BigDecimal price, Date date) {
+    public Transaction(Trader trader, Asset asset, int quantity , String transactionType) {
         this.id = idCounter++;
         this.trader = trader;
         this.asset = asset;
-        this.type = type;
+        this.transactionType = transactionType;
         this.quantity = quantity;
-        this.price = price;
-        this.date = date;
+        this.price = asset.getUnitPrice();
+        this.date = new Date();
     }
 
     public int getId() {
@@ -48,11 +49,11 @@ public class Transaction {
     }
 
     public String getType() {
-        return type;
+        return transactionType;
     }
 
     public void setType(String type) {
-        this.type = type;
+        this.transactionType = type;
     }
 
     public int getQuantity() {
@@ -77,5 +78,25 @@ public class Transaction {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public void showTransaction() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        System.out.println("=================================");
+        System.out.println("Transaction ID   : " + id);
+        System.out.println("Trader           : " + trader.getName() + " (ID: " + trader.getId() + ")");
+        System.out.println("Asset            : " + asset.getName() +
+                " | Code: " + asset.getCode() +
+                " | Type: " + asset.getType());
+        System.out.println("Type             : " + transactionType);
+        System.out.println("Quantity         : " + quantity);
+        System.out.println("Unit Price      : " + price + " MAD");
+
+        BigDecimal total = price.multiply(BigDecimal.valueOf(quantity));
+        System.out.println("Total Amount    : " + total + " MAD");
+
+        System.out.println("Date            : " + sdf.format(date));
+        System.out.println("=================================");
     }
 }

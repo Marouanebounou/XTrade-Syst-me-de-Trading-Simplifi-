@@ -19,6 +19,6 @@ public class Stock extends Asset{
 
     @Override
     public void showAsset() {
-        System.out.printf("Stock : Name : " + this.name + " - Code : " + this.code + " - Type : " + this.type + " - Price : " + this.unitPrice + "DH - Market : " + this.market);
+        System.out.println("Stock : Name : " + this.name + " - Code : " + this.code + " - Type : " + this.type + " - Price : " + this.unitPrice + "DH - Market : " + this.market);
     }
 }

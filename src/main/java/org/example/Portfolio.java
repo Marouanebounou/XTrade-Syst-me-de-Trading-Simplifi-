@@ -1,12 +1,9 @@
 package org.example;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Portfolio <T extends Asset> {
-    private static int idCounter = 0;
+    private static int idCounter = 1;
     private int portfolioId;
     private HashMap<T , Integer> assetsMap = new HashMap<>();
     private List<Asset> assets;
@@ -81,22 +78,34 @@ public class Portfolio <T extends Asset> {
         }
     }
 
-    public void removeFromPortfolio(T asset , int qunatity){
+    public void removeFromPortfolio(T asset , int quantity){
         try {
             T target = null;
             for (Map.Entry m : assetsMap.entrySet()){
                 if (m.getKey() == asset){
-                    if ((int)m.getValue() < qunatity){
-
-                    }
                     target = (T)m.getKey();
-                    assetsMap.remove(m.getKey(),m.getValue());
-                    System.out.println("Asset removed successfully.");
+                    int targetQuantity = (int)m.getValue();
+                    if (targetQuantity > quantity){
+                        m.setValue(targetQuantity - quantity);
+                        System.out.println(quantity + " Sold from " + target.getName() + " With teh code : " + target.getCode());
+                    } else if ((int)m.getValue() == quantity) {
+                        assetsMap.remove(m.getKey(),m.getValue());
+                        System.out.println("Asset sold successfully.");
+                    }else {
+                        System.out.println("The quantity is more than owned quantity.");
+                    }
                 }
             }
         } catch (Exception e) {
-            System.out.println("Something");
+            System.out.println("Something went wrong in removing an asset.");
         }
     }
 
+    public void showPortfolio() {
+        System.out.print("Trader: ");
+        trader.showTrader();
+        System.out.println("portfolio Id : " + this.portfolioId);
+        List<T> assetsToShow = new ArrayList<>(assetsMap.keySet());
+        assetsToShow.stream().forEach(a -> a.showAsset());
+    }
 }

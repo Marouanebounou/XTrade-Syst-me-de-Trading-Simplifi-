@@ -10,7 +10,7 @@ public class Platform {
     private String name;
     private List<Trader> traders;
     private List<Asset> assets;
-    private List<Transaction> transactions;
+    private static List<Transaction> transactions;
     private List<Portfolio> portfolios;
 
     public Platform(String name){
@@ -54,7 +54,7 @@ public class Platform {
         this.assets = assets;
     }
 
-    public List<Transaction> getTransactions() {
+    public static List<Transaction> getTransactions() {
         return transactions;
     }
 
@@ -153,6 +153,14 @@ public class Platform {
         traders.stream().forEach(trader -> trader.showTrader());
     }
 
+    public void showPortfolio(){
+        portfolios.stream().forEach(portfolio -> portfolio.showPortfolio());
+    }
+
+    public void showHistory() {
+        transactions.stream().forEach(transaction -> transaction.showTransaction());
+    }
+
     public void buyAsset(){
         try{
             Asset target = null;
@@ -186,7 +194,7 @@ public class Platform {
                     }else {
                         BigDecimal q = new BigDecimal(quantity);
                         BigDecimal price =target.getUnitPrice();
-                        if (price.multiply(q).compareTo(targetTrader.getSolde()) < 0){
+                        if (price.multiply(q).compareTo(targetTrader.getSolde()) <= 0){
                             Portfolio portfolio = null;
                             for (Portfolio p : portfolios){
                                 if (p.getTrader().getId() == targetTrader.getId()){
@@ -198,6 +206,9 @@ public class Platform {
                             }else{
                                 portfolio.addAssetToPortfolio(target);
                                 portfolio.addToPortfolio(target , quantity);
+                                targetTrader.setSolde(targetTrader.getSolde().subtract(price.multiply(q)));
+                                transactions.add(new Transaction(targetTrader , target , quantity , "Buy transaction"));
+                                System.out.println("Asset bought successfully.");
                             }
                         }else {
                             System.out.println("The trader doesnt have enough money!");
@@ -233,7 +244,13 @@ public class Platform {
                     System.out.print("Enter the quantity of "+ targetAsset.getName() + " Quantity : ");
                     int quantity = Integer.parseInt(sc.nextLine());
                     if (quantity > 0){
-
+                        portfolio.removeFromPortfolio(targetAsset , quantity);
+                        BigDecimal q = new BigDecimal(quantity);
+                        targetTrader.setSolde(targetTrader.getSolde().add(targetAsset.getUnitPrice().multiply(q)));
+                        transactions.add(new Transaction(targetTrader , targetAsset , quantity , "Sell Transaction"));
+                        System.out.println(targetAsset.getUnitPrice().multiply(q) + "DH added to trader sold.");
+                    }else{
+                        System.out.println("Quantity cannot be less than 0.");
                     }
                 }else {
                     System.out.println("No asset found.");
@@ -247,4 +264,5 @@ public class Platform {
             System.out.println("Something went wrong in sell asset.");
         }
     }
+
 }

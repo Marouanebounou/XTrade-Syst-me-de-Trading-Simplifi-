@@ -20,6 +20,6 @@ public class CryptoCurrency extends Asset{
 
     @Override
     public void showAsset() {
-        System.out.printf("Crypto currency : Name : " + this.name + " - Code : " + this.code + " - Type : " + this.type + " - Price : " + this.unitPrice + "DH - Block chain : " + this.blockchain);
+        System.out.println("Crypto currency : Name : " + this.name + " - Code : " + this.code + " - Type : " + this.type + " - Price : " + this.unitPrice + "DH - Block chain : " + this.blockchain);
     }
 }
