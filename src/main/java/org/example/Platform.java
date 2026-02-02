@@ -265,4 +265,92 @@ public class Platform {
         }
     }
 
+    public void showTransactionsByTrader(){
+        try {
+            showTraders();
+            System.out.print("Enter the trader id: ");
+            int traderId = Integer.parseInt(sc.nextLine());
+            if (traders.stream().anyMatch(trader -> trader.getId() == traderId)){
+                Trader targetTrader = traders.stream().filter(trader -> trader.getId() == traderId).findFirst().get();
+                transactions.stream().filter(transaction -> transaction.getTrader().getId() == targetTrader.getId()).forEach(transaction -> transaction.showTransaction());
+            }else {
+                System.out.println("Trader not found.");
+            }
+
+        } catch (Exception e) {
+            System.out.println("Something went wrong while showing trader transactions.");
+        }
+    }
+
+    public void filterByType(){
+        try {
+            if (assets.isEmpty()){
+                System.out.println("No transactions found.");
+            }else {
+                System.out.println("Buy transactions");
+                assets.stream().filter(asset -> asset.getType() == "Buy transaction").forEach(asset -> asset.showAsset());
+                System.out.println("Sell transactions");
+                assets.stream().filter(asset -> asset.getType() == "Sell Transaction").forEach(asset -> asset.showAsset());
+            }
+        } catch (Exception e) {
+            System.out.println("Something went wrong while filtering transactions by type.");
+        }
+    }
+
+    public void sortByDate() {
+        try {
+            if (transactions.isEmpty()){
+                System.out.println("No transaction found.");
+            }else {
+                List<Transaction> transactionStream = transactions.stream().sorted(Comparator.comparing(Transaction::getDate).reversed()).toList();
+                transactionStream.forEach(Transaction::showTransaction);
+            }
+        } catch (Exception e) {
+            System.out.println("Something went wrong while sorting transactions by date.");
+        }
+    }
+
+    public void sortByAmount() {
+        try {
+            if (transactions.isEmpty()){
+                System.out.println("No transaction found.");
+            }else {
+                List<Transaction> transactionListStored = transactions.stream().sorted(Comparator.comparing(Transaction::getPrice).reversed()).toList();
+                transactionListStored.forEach(Transaction::showTransaction);
+            }
+        } catch (Exception e) {
+            System.out.println("Something went wrong while sorting transactions by amount.");
+        }
+    }
+
+    public void totalVolumePerAsset() {
+        try {
+            showAssets();
+            System.out.print("Enter asset code: ");
+            int assetId = Integer.parseInt(sc.nextLine());
+            if (assets.stream().anyMatch(asset -> asset.getCode() == assetId)){
+                if (transactions.stream().anyMatch(transaction -> transaction.getAsset().getCode() == assetId)){
+                    List<Transaction> assetTransactions = transactions.stream().filter(transaction -> transaction.getAsset().getCode() == assetId).toList();
+                    BigDecimal total = BigDecimal.valueOf(0.0);
+                    for (Transaction t : assetTransactions){
+                        BigDecimal totalPrice = t.getPrice().multiply(BigDecimal.valueOf(t.getQuantity()));
+                        total.add(totalPrice);
+                    }
+                    System.out.println("Total Volume amount : " + total);
+                }else {
+                    System.out.println("No transaction found for this asset.");
+                }
+            }else {
+                System.out.println("Asset not found.");
+            }
+        }catch (Exception e){
+            System.out.println("Something went wrong while showing total volume per asset.");
+        }
+    }
+
+    public void totalBuyAmount() {
+    }
+
+    public void totalSellAmount() {
+    }
 }
