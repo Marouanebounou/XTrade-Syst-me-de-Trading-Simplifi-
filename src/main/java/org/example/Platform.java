@@ -334,7 +334,7 @@ public class Platform {
                     BigDecimal total = BigDecimal.valueOf(0.0);
                     for (Transaction t : assetTransactions){
                         BigDecimal totalPrice = t.getPrice().multiply(BigDecimal.valueOf(t.getQuantity()));
-                        total.add(totalPrice);
+                        total = total.add(totalPrice);
                     }
                     System.out.println("Total Volume amount : " + total);
                 }else {
@@ -349,8 +349,69 @@ public class Platform {
     }
 
     public void totalBuyAmount() {
+        try {
+            showAssets();
+            System.out.print("Enter asset code: ");
+            int assetId = Integer.parseInt(sc.nextLine());
+            if (assets.stream().anyMatch(asset -> asset.getCode() == assetId)){
+                Asset targetAsset = assets.stream().filter(asset -> asset.getCode() == assetId).findFirst().get();
+                List<Transaction> assetTransaction = transactions.stream().filter(transaction -> transaction.getAsset() == targetAsset && Objects.equals(transaction.getType(), "Buy transaction")).toList();
+                if (assetTransaction.isEmpty()) {
+                    System.out.println("No transaction with this asset.");
+                }else {
+                    BigDecimal total = new BigDecimal(0);
+                    for (Transaction t : assetTransaction){
+                        BigDecimal quantity = new BigDecimal(t.getQuantity());
+                        total = total.add(t.getPrice().multiply(quantity));
+                    }
+                    System.out.println("Total buy amount for " + targetAsset.getName() + " : " + total + "DH.");
+                }
+            }else {
+                System.out.println("Asset not found.");
+            }
+        } catch (Exception e) {
+            System.out.println("Something went wrong while calculating total buy amount.");
+        }
     }
 
     public void totalSellAmount() {
+        try {
+            showAssets();
+            System.out.print("Enter asset code: ");
+            int assetId = Integer.parseInt(sc.nextLine());
+            if (assets.stream().anyMatch(asset -> asset.getCode() == assetId)){
+                Asset targetAsset = assets.stream().filter(asset -> asset.getCode() == assetId).findFirst().get();
+                List<Transaction> assetTransaction = transactions.stream().filter(transaction -> transaction.getAsset() == targetAsset && Objects.equals(transaction.getType(), "Sell Transaction")).toList();
+                if (assetTransaction.isEmpty()) {
+                    System.out.println("No transaction with this asset.");
+                }else {
+                    BigDecimal total = new BigDecimal(0);
+                    for (Transaction t : assetTransaction){
+                        BigDecimal quantity = new BigDecimal(t.getQuantity());
+                        total = total.add(t.getPrice().multiply(quantity));
+                    }
+                    System.out.println("Total buy amount for " + targetAsset.getName() + " : " + total + "DH.");
+                }
+            }else {
+                System.out.println("Asset not found.");
+            }
+        } catch (Exception e) {
+            System.out.println("Something went wrong while calculating total buy amount.");
+        }
     }
+
+    public void totalVolumePerTrader() {
+        try {
+
+        } catch (Exception e) {
+            System.out.println("Something went wrong while calculating total volume per trader.");
+        }
+    }
+
+    public void totalNumberOfOrders() {
+    }
+
+    public void rankTopNTraders() {
+    }
+
 }

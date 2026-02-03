@@ -114,7 +114,11 @@ public class Main {
                 System.out.print("Choose an option: ");
                 choice = Integer.parseInt(sc.nextLine());
                 switch (choice) {
-
+                    case 1 -> transactionMenu();
+                    case 2 -> traderMenu();
+                    case 3 -> marketMenu();
+                    case 0 -> System.out.println("Returning to main menu...");
+                    default -> System.out.println("Invalid option. Try again.");
                 }
             }while (choice != 0);
         } catch (Exception e) {
@@ -176,7 +180,13 @@ public class Main {
                 System.out.println("=====================================");
                 System.out.print("Choose an option: ");
                 choice = Integer.parseInt(sc.nextLine());
-
+                switch (choice) {
+                    case 1 -> xTrade.totalVolumePerTrader();
+                    case 2 -> xTrade.totalNumberOfOrders();
+                    case 3 -> xTrade.rankTopNTraders();
+                    case 0 -> System.out.println("Returning to main menu...");
+                    default -> System.out.println("Invalid option. Try again.");
+                }
             }while (choice!=0);
 
 
