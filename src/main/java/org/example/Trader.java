@@ -33,6 +33,6 @@ public class Trader extends Person{
     }
 
     public void showTrader(){
-        System.out.println("Name : " + super.getName() + " - Age : " + this.getAge() + " - Solde : " + this.solde + "DH.");
+        System.out.println("Id : " + super.getId() +" - Name : " + super.getName() + " - Age : " + this.getAge() + " - Solde : " + this.solde + "DH.");
     }
 }

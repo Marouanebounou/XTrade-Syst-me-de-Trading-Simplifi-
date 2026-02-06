@@ -73,7 +73,7 @@ public class Main {
                         break;
 
                     case 10:
-                        analysisMenu();
+                        transactionMenu();
                         break;
 
                     case 11:

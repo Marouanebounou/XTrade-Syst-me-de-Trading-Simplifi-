@@ -13,6 +13,7 @@ public class Transaction {
     private int quantity;
     private BigDecimal price;
     private Date date;
+    private BigDecimal totalPrice;
 
     public Transaction(Trader trader, Asset asset, int quantity , String transactionType) {
         this.id = idCounter++;
@@ -22,6 +23,15 @@ public class Transaction {
         this.quantity = quantity;
         this.price = asset.getUnitPrice();
         this.date = new Date();
+        this.totalPrice = price.multiply(BigDecimal.valueOf(quantity));
+    }
+
+    public BigDecimal getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(BigDecimal totalPrice) {
+        this.totalPrice = totalPrice;
     }
 
     public int getId() {

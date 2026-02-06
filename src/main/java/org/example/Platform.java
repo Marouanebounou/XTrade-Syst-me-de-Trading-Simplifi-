@@ -22,6 +22,29 @@ public class Platform {
         this.traders = new ArrayList<>();
         this.transactions = new ArrayList<>();
         this.portfolios = new ArrayList<>();
+
+        Asset a1 = new Stock(101, "Apple", new BigDecimal("150.50"), "Stock", "NASDAQ");
+        Asset a2 = new Stock(102, "Tesla", new BigDecimal("800.75"), "Stock", "NASDAQ");
+        Asset a3 = new CryptoCurrency(201, "Bitcoin", new BigDecimal("25000.00"), "Crypto", "BTC Blockchain");
+        Asset a4 = new CryptoCurrency(202, "Ethereum", new BigDecimal("1800.00"), "Crypto", "ETH Blockchain");
+
+        assets.addAll(Arrays.asList(a1, a2, a3, a4));
+
+        Trader t1 = new Trader("Alice", 28, new BigDecimal("100000"));
+        Trader t2 = new Trader("Bob", 35, new BigDecimal("50000"));
+        Trader t3 = new Trader("Charlie", 22, new BigDecimal("75000"));
+
+        traders.addAll(Arrays.asList(t1, t2, t3));
+
+        portfolios.add(new Portfolio(t1));
+        portfolios.add(new Portfolio(t2));
+        portfolios.add(new Portfolio(t3));
+
+        transactions.add(new Transaction(t1, a1, 10, "Buy transaction"));
+        transactions.add(new Transaction(t1, a3, 2, "Buy transaction"));
+        transactions.add(new Transaction(t2, a2, 5, "Buy transaction"));
+        transactions.add(new Transaction(t3, a4, 3, "Buy transaction"));
+        transactions.add(new Transaction(t1, a1, 5, "Sell Transaction"));
     }
 
     public int getPlatformId() {
@@ -284,20 +307,28 @@ public class Platform {
         }
     }
 
-    public void filterByType(){
+    public void filterByType() {
         try {
-            if (assets.isEmpty()){
+            if (transactions.isEmpty()) {
                 System.out.println("No transactions found.");
-            }else {
-                System.out.println("Buy transactions");
-                assets.stream().filter(asset -> asset.getType() == "Buy transaction").forEach(asset -> asset.showAsset());
-                System.out.println("Sell transactions");
-                assets.stream().filter(asset -> asset.getType() == "Sell Transaction").forEach(asset -> asset.showAsset());
+                return;
             }
+
+            System.out.println("=== Buy Transactions ===");
+            transactions.stream()
+                    .filter(t -> t.getType().equalsIgnoreCase("Buy transaction"))
+                    .forEach(Transaction::showTransaction);
+
+            System.out.println("=== Sell Transactions ===");
+            transactions.stream()
+                    .filter(t -> t.getType().equalsIgnoreCase("Sell Transaction"))
+                    .forEach(Transaction::showTransaction);
+
         } catch (Exception e) {
             System.out.println("Something went wrong while filtering transactions by type.");
         }
     }
+
 
     public void sortByDate() {
         try {
@@ -317,7 +348,7 @@ public class Platform {
             if (transactions.isEmpty()){
                 System.out.println("No transaction found.");
             }else {
-                List<Transaction> transactionListStored = transactions.stream().sorted(Comparator.comparing(Transaction::getPrice).reversed()).toList();
+                List<Transaction> transactionListStored = transactions.stream().sorted(Comparator.comparing(Transaction::getTotalPrice).reversed()).toList();
                 transactionListStored.forEach(Transaction::showTransaction);
             }
         } catch (Exception e) {
@@ -404,15 +435,22 @@ public class Platform {
 
     public void totalVolumePerTrader() {
         try {
+            showTraders();
             System.out.println("Enter trader id :");
             int traderId = Integer.parseInt(sc.nextLine());
-            BigDecimal totalVolume = new BigDecimal(0);
-            transactions.stream().filter(transaction -> transaction.getTrader().getId() == traderId).forEach(transaction -> totalVolume.add(transaction.getPrice().multiply(new BigDecimal(transaction.getQuantity()))));
+
+            BigDecimal totalVolume = transactions.stream()
+                    .filter(transaction -> transaction.getTrader().getId() == traderId)
+                    .map(transaction -> transaction.getPrice().multiply(BigDecimal.valueOf(transaction.getQuantity())))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
             System.out.println("Trader total volume is : " + totalVolume + " DH");
+
         } catch (Exception e) {
             System.out.println("Something went wrong while calculating total volume per trader.");
         }
     }
+
 
     public BigDecimal totalVolumePerTrader(int traderId){
         BigDecimal totalVolume = new BigDecimal(0);
@@ -428,15 +466,26 @@ public class Platform {
     }
 
     public void rankTopNTraders() {
-        HashMap<Trader , BigDecimal> topTraders = new HashMap<>();
-        traders.forEach(trader -> topTraders.put(trader , totalVolumePerTrader(trader.getId())));
-        topTraders.entrySet().stream()
+        if (traders.isEmpty() || transactions.isEmpty()) {
+            System.out.println("No traders or transactions available.");
+            return;
+        }
+
+        traders.stream()
+                .map(trader -> Map.entry(
+                        trader,
+                        transactions.stream()
+                                .filter(t -> t.getTrader().getId() == trader.getId())
+                                .map(t -> t.getPrice().multiply(BigDecimal.valueOf(t.getQuantity())))
+                                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                ))
                 .sorted(Map.Entry.<Trader, BigDecimal>comparingByValue().reversed())
                 .limit(3)
-                .forEach(entry -> {
-                    System.out.println(entry.getKey().getName() + " - " + entry.getValue() + "DH");
-                });
+                .forEach(entry -> System.out.println(
+                        entry.getKey().getName() + " - " + entry.getValue() + " DH"
+                ));
     }
+
 
     public void totalVolumePerInstrument() {
         if (transactions.isEmpty()) {
@@ -453,7 +502,6 @@ public class Platform {
             System.out.println(asset.getName() + " -> " + total + " DH");
         });
     }
-
 
     public void mostTradedInstrument() {
         if (transactions.isEmpty()) {
@@ -483,7 +531,6 @@ public class Platform {
         }
     }
 
-
     public void totalGlobalBuyAmount() {
         BigDecimal totalBuy = transactions.stream()
                 .filter(t -> "Buy transaction".equalsIgnoreCase(t.getType()))
@@ -492,7 +539,6 @@ public class Platform {
 
         System.out.println("Total GLOBAL BUY amount: " + totalBuy + " DH");
     }
-
 
     public void totalGlobalSellAmount() {
         BigDecimal totalSell = transactions.stream()
