@@ -1,7 +1,9 @@
 package org.example;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Platform {
     Scanner sc = new Scanner(System.in);
@@ -402,16 +404,135 @@ public class Platform {
 
     public void totalVolumePerTrader() {
         try {
-
+            System.out.println("Enter trader id :");
+            int traderId = Integer.parseInt(sc.nextLine());
+            BigDecimal totalVolume = new BigDecimal(0);
+            transactions.stream().filter(transaction -> transaction.getTrader().getId() == traderId).forEach(transaction -> totalVolume.add(transaction.getPrice().multiply(new BigDecimal(transaction.getQuantity()))));
+            System.out.println("Trader total volume is : " + totalVolume + " DH");
         } catch (Exception e) {
             System.out.println("Something went wrong while calculating total volume per trader.");
         }
     }
 
+    public BigDecimal totalVolumePerTrader(int traderId){
+        BigDecimal totalVolume = new BigDecimal(0);
+        transactions.stream().filter(transaction -> transaction.getTrader().getId() == traderId).forEach(transaction -> totalVolume.add(transaction.getPrice().multiply(new BigDecimal(transaction.getQuantity()))));
+        return totalVolume;
+    }
+
     public void totalNumberOfOrders() {
+        System.out.println("Enter trader id :");
+        int traderId = Integer.parseInt(sc.nextLine());
+        int totalNumberOfOrders = transactions.stream().filter(transaction -> transaction.getTrader().getId() == traderId).toList().size();
+        System.out.println("Trader total number of orders is : " + totalNumberOfOrders);
     }
 
     public void rankTopNTraders() {
+        HashMap<Trader , BigDecimal> topTraders = new HashMap<>();
+        traders.forEach(trader -> topTraders.put(trader , totalVolumePerTrader(trader.getId())));
+        topTraders.entrySet().stream()
+                .sorted(Map.Entry.<Trader, BigDecimal>comparingByValue().reversed())
+                .limit(3)
+                .forEach(entry -> {
+                    System.out.println(entry.getKey().getName() + " - " + entry.getValue() + "DH");
+                });
     }
+
+    public void totalVolumePerInstrument() {
+        if (transactions.isEmpty()) {
+            System.out.println("No transactions found.");
+            return;
+        }
+
+        assets.forEach(asset -> {
+            BigDecimal total = transactions.stream()
+                    .filter(t -> t.getAsset().equals(asset))
+                    .map(t -> t.getPrice().multiply(BigDecimal.valueOf(t.getQuantity())))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            System.out.println(asset.getName() + " -> " + total + " DH");
+        });
+    }
+
+
+    public void mostTradedInstrument() {
+        if (transactions.isEmpty()) {
+            System.out.println("No transactions found.");
+            return;
+        }
+
+        Asset mostTraded = null;
+        BigDecimal maxVolume = BigDecimal.ZERO;
+
+        for (Asset asset : assets) {
+            BigDecimal total = transactions.stream()
+                    .filter(t -> t.getAsset().equals(asset))
+                    .map(t -> t.getPrice().multiply(BigDecimal.valueOf(t.getQuantity())))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            if (total.compareTo(maxVolume) > 0) {
+                maxVolume = total;
+                mostTraded = asset;
+            }
+        }
+
+        if (mostTraded != null) {
+            System.out.println("Most traded instrument: "
+                    + mostTraded.getName()
+                    + " -> " + maxVolume + " DH");
+        }
+    }
+
+
+    public void totalGlobalBuyAmount() {
+        BigDecimal totalBuy = transactions.stream()
+                .filter(t -> "Buy transaction".equalsIgnoreCase(t.getType()))
+                .map(t -> t.getPrice().multiply(BigDecimal.valueOf(t.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        System.out.println("Total GLOBAL BUY amount: " + totalBuy + " DH");
+    }
+
+
+    public void totalGlobalSellAmount() {
+        BigDecimal totalSell = transactions.stream()
+                .filter(t -> "Sell Transaction".equalsIgnoreCase(t.getType()))
+                .map(t -> t.getPrice().multiply(BigDecimal.valueOf(t.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        System.out.println("Total GLOBAL SELL amount: " + totalSell + " DH");
+    }
+
+    public void filterByDateRange() {
+        try {
+            if (transactions.isEmpty()) {
+                System.out.println("No transactions found.");
+                return;
+            }
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+            System.out.print("Enter start date (yyyy-MM-dd): ");
+            Date startDate = sdf.parse(sc.nextLine());
+
+            System.out.print("Enter end date (yyyy-MM-dd): ");
+            Date endDate = sdf.parse(sc.nextLine());
+
+            List<Transaction> result = transactions.stream()
+                    .filter(t -> !t.getDate().before(startDate)
+                            && !t.getDate().after(endDate))
+                    .toList();
+
+            if (result.isEmpty()) {
+                System.out.println("No transactions found in this date range.");
+            } else {
+                result.forEach(Transaction::showTransaction);
+            }
+
+        } catch (Exception e) {
+            System.out.println("Invalid date format. Please use yyyy-MM-dd.");
+        }
+    }
+
 
 }

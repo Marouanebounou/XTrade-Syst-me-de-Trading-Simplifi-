@@ -211,7 +211,14 @@ public class Main {
             System.out.println("=====================================");
             System.out.print("Choose an option: ");
             choice = Integer.parseInt(sc.nextLine());
-
+                switch (choice) {
+                    case 1 -> xTrade.totalVolumePerInstrument();
+                    case 2 -> xTrade.mostTradedInstrument();
+                    case 3 -> xTrade.totalGlobalBuyAmount();
+                    case 4 -> xTrade.totalGlobalSellAmount();
+                    case 0 -> System.out.println("Returning to main menu...");
+                    default -> System.out.println("Invalid option. Try again.");
+                }
             }while (choice!=0);
         } catch (Exception e) {
             System.out.println("Something went wrong try again.");
